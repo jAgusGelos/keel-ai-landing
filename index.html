@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keel AI — AI Skill Orchestration Platform</title>
+  <meta name="description" content="Stop managing skills. Start orchestrating them. Keel AI is the orchestration layer for AI coding skills.">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-elevated: #111118;
+      --bg-card: #16161f;
+      --purple: #7c3aed;
+      --purple-light: #a78bfa;
+      --cyan: #06b6d4;
+      --cyan-light: #22d3ee;
+      --green: #10b981;
+      --text: #f1f1f4;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(255, 255, 255, 0.12);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Dot grid background ── */
+    .dot-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* ── Radial glow overlays ── */
+    .glow-top {
+      position: fixed;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120%;
+      height: 80%;
+      background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .glow-bottom {
+      position: fixed;
+      bottom: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 60%;
+      background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.05) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Layout ── */
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section {
+      padding: 120px 0;
+    }
+
+    /* ── Fade-in animation ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+    .fade-in-delay-4 { transition-delay: 0.4s; }
+
+    /* ── Navigation ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-brand img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav-brand span {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-cta {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--purple-light);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .nav-cta:hover {
+      background: rgba(124, 58, 237, 0.2);
+      border-color: rgba(124, 58, 237, 0.6);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding-top: 80px;
+    }
+
+    .hero-content {
+      max-width: 720px;
+    }
+
+    .hero-logo {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 32px;
+      animation: float 6s ease-in-out infinite;
+      filter: drop-shadow(0 0 40px rgba(124, 58, 237, 0.3));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .hero-title-keel {
+      font-size: clamp(40px, 6vw, 64px);
+      font-weight: 800;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 30%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: rgba(124, 58, 237, 0.1);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      color: var(--purple-light);
+      margin-bottom: 32px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--purple-light);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .hero-headline {
+      font-size: clamp(24px, 3.5vw, 40px);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 48px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Email form ── */
+    .email-form {
+      display: flex;
+      gap: 10px;
+      max-width: 460px;
+      margin: 0 auto 16px;
+    }
+
+    .email-form input[type="email"] {
+      flex: 1;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .email-form input[type="email"]::placeholder {
+      color: var(--text-muted);
+    }
+
+    .email-form input[type="email"]:focus {
+      border-color: rgba(124, 58, 237, 0.5);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    .ohnohoney {
+      position: absolute;
+      left: -9999px;
+      opacity: 0;
+      height: 0;
+      width: 0;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--purple), #6d28d9);
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+
+    .btn-primary span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .form-note {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .form-success, .form-error {
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      max-width: 460px;
+      margin: 0 auto 16px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .form-success.show, .form-error.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .form-success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--green);
+    }
+
+    .form-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    /* ── Section headers ── */
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--purple-light);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .section-desc {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-center .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Problem section ── */
+    .problem {
+      border-top: 1px solid var(--border);
+    }
+
+    .problem .section-title .highlight {
+      color: var(--cyan);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 56px;
+    }
+
+    .stat-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 24px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .stat-number {
+      font-size: clamp(40px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .stat-card:nth-child(1) .stat-number {
+      background: linear-gradient(135deg, var(--purple-light), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-card:nth-child(2) .stat-number {
+      color: var(--text-muted);
+    }
+
+    .stat-card:nth-child(3) .stat-number {
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ── Solution section ── */
+    .solution {
+      border-top: 1px solid var(--border);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 56px;
+    }
+
+    .feature-card {
+      position: relative;
+      background: var(--bg-elevated);
+      border-radius: 16px;
+      padding: 36px;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--border), var(--border));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      transition: background 0.4s ease;
+    }
+
+    .feature-card:hover::before {
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+    }
+
+    .feature-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .feature-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .feature-icon-orchestrate { background: rgba(124, 58, 237, 0.15); color: var(--purple-light); }
+    .feature-icon-enforce { background: rgba(6, 182, 212, 0.15); color: var(--cyan); }
+    .feature-icon-learn { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+    .feature-icon-ship { background: rgba(167, 139, 250, 0.15); color: var(--purple-light); }
+
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── Social proof ── */
+    .proof {
+      border-top: 1px solid var(--border);
+    }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 56px;
+    }
+
+    .proof-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 24px;
+      text-align: center;
+      transition: border-color 0.3s ease;
+    }
+
+    .proof-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .proof-number {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .proof-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ── Final CTA ── */
+    .final-cta {
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .final-cta .section-title {
+      margin-bottom: 12px;
+    }
+
+    .final-cta .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 40px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+    }
+
+    footer .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-secondary);
+    }
+
+    /* ── Divider line ── */
+    .divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      border-radius: 2px;
+      margin: 0 auto 40px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      section { padding: 80px 0; }
+
+      .email-form {
+        flex-direction: column;
+      }
+
+      .email-form input[type="email"],
+      .btn-primary {
+        width: 100%;
+      }
+
+      .stat-grid,
+      .proof-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .stat-card { padding: 28px 20px; }
+      .hero-logo { width: 88px; height: 88px; }
+
+      footer .container {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 0 16px; }
+      .feature-card { padding: 28px; }
+    }
+
+    /* ── Focus states ── */
+    :focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: 2px;
+    }
+
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: 2px;
+    }
+
+    /* ── Selection ── */
+    ::selection {
+      background: rgba(124, 58, 237, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dot-grid" aria-hidden="true"></div>
+  <div class="glow-top" aria-hidden="true"></div>
+  <div class="glow-bottom" aria-hidden="true"></div>
+
+  <div class="content">
+
+    <!-- Nav -->
+    <nav aria-label="Main navigation">
+      <div class="container">
+        <a href="#" class="nav-brand" aria-label="Keel AI home">
+          <img src="assets/keel-logo.png" alt="" width="32" height="32">
+          <span>KEEL AI</span>
+        </a>
+        <a href="#waitlist" class="nav-cta">Get Early Access</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <div class="fade-in">
+          <img src="assets/keel-logo.png" alt="Keel AI logo" class="hero-logo" width="120" height="120">
+        </div>
+        <div class="fade-in fade-in-delay-1">
+          <div class="hero-title-keel">KEEL AI</div>
+        </div>
+        <div class="fade-in fade-in-delay-2">
+          <div class="badge"><span class="badge-dot"></span> Coming Soon</div>
+        </div>
+        <h1 class="hero-headline fade-in fade-in-delay-2">Stop managing skills.<br>Start orchestrating them.</h1>
+        <p class="hero-sub fade-in fade-in-delay-3">The orchestration layer for AI coding skills. Connect workflows. Enforce quality. Ship faster.</p>
+        <div class="fade-in fade-in-delay-4">
+          <form class="email-form" action="https://formspree.io/f/xwpkgjvl" method="POST" id="hero-form">
+            <label class="ohnohoney" for="hero-honey" aria-hidden="true">Do not fill this</label>
+            <input type="text" name="_gotcha" id="hero-honey" class="ohnohoney" tabindex="-1" autocomplete="off">
+            <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address">
+            <button type="submit" class="btn-primary"><span>Get Early Access</span></button>
+          </form>
+          <div class="form-success" id="hero-success">You're on the list. We'll be in touch soon.</div>
+          <div class="form-error" id="hero-error">Something went wrong. Please try again.</div>
+          <p class="form-note">Be first to know when we launch. No spam.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem -->
+    <section class="problem" id="problem">
+      <div class="container text-center">
+        <p class="section-label fade-in">The Problem</p>
+        <h2 class="section-title fade-in fade-in-delay-1">47 AI skills installed.<br><span class="highlight">3 actually used.</span></h2>
+        <p class="section-desc fade-in fade-in-delay-2">You have dozens of AI skills scattered across your workflow. They don't compose. They don't share context. They don't enforce quality. Most of them sit unused, while the few that work operate in complete isolation.</p>
+        <div class="stat-grid">
+          <div class="stat-card fade-in fade-in-delay-1">
+            <div class="stat-number">47+</div>
+            <div class="stat-label">Skills installed on avg</div>
+          </div>
+          <div class="stat-card fade-in fade-in-delay-2">
+            <div class="stat-number">0</div>
+            <div class="stat-label">That share context</div>
+          </div>
+          <div class="stat-card fade-in fade-in-delay-3">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Actually producing value</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solution -->
+    <section class="solution" id="solution">
+      <div class="container text-center">
+        <p class="section-label fade-in">The Solution</p>
+        <h2 class="section-title fade-in fade-in-delay-1">What if your skills<br>worked together?</h2>
+        <p class="section-desc fade-in fade-in-delay-2">Keel AI connects your AI skills into intelligent, composable workflows that share context and enforce quality at every step.</p>
+        <div class="feature-grid">
+          <div class="feature-card fade-in fade-in-delay-1">
+            <div class="feature-icon feature-icon-orchestrate">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+            </div>
+            <h3>Orchestrate</h3>
+            <p>Chain skills into intelligent workflows that execute in sequence, passing context and results between each step.</p>
+          </div>
+          <div class="feature-card fade-in fade-in-delay-2">
+            <div class="feature-icon feature-icon-enforce">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <h3>Enforce</h3>
+            <p>Every change passes through automated quality gates. No shortcuts, no forgotten checks, no regressions.</p>
+          </div>
+          <div class="feature-card fade-in fade-in-delay-3">
+            <div class="feature-icon feature-icon-learn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <h3>Learn</h3>
+            <p>Your workflows get smarter with every review cycle. Patterns are captured, promoted, and applied automatically.</p>
+          </div>
+          <div class="feature-card fade-in fade-in-delay-4">
+            <div class="feature-icon feature-icon-ship">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <h3>Ship</h3>
+            <p>From idea to production with confidence. Orchestrated workflows handle the complexity so you can focus on building.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="proof" id="proof">
+      <div class="container text-center">
+        <p class="section-label fade-in">Built to Scale</p>
+        <h2 class="section-title fade-in fade-in-delay-1">Built by developers,<br>for developers.</h2>
+        <div class="proof-grid">
+          <div class="proof-card fade-in fade-in-delay-1">
+            <div class="proof-number">42+</div>
+            <div class="proof-label">Skills</div>
+          </div>
+          <div class="proof-card fade-in fade-in-delay-2">
+            <div class="proof-number">6</div>
+            <div class="proof-label">Workflow Chains</div>
+          </div>
+          <div class="proof-card fade-in fade-in-delay-3">
+            <div class="proof-number">57</div>
+            <div class="proof-label">Point Quality Gate</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta" id="waitlist">
+      <div class="container">
+        <div class="divider fade-in"></div>
+        <p class="section-label fade-in">Early Access</p>
+        <h2 class="section-title fade-in fade-in-delay-1">Join the waitlist.</h2>
+        <p class="section-desc fade-in fade-in-delay-2">Be among the first to orchestrate your AI skills into production-ready workflows.</p>
+        <div class="fade-in fade-in-delay-3">
+          <form class="email-form" action="https://formspree.io/f/xwpkgjvl" method="POST" id="footer-form" style="margin-top: 40px;">
+            <label class="ohnohoney" for="footer-honey" aria-hidden="true">Do not fill this</label>
+            <input type="text" name="_gotcha" id="footer-honey" class="ohnohoney" tabindex="-1" autocomplete="off">
+            <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address">
+            <button type="submit" class="btn-primary"><span>Get Early Access</span></button>
+          </form>
+          <div class="form-success" id="footer-success">You're on the list. We'll be in touch soon.</div>
+          <div class="form-error" id="footer-error">Something went wrong. Please try again.</div>
+          <p class="form-note">Be first to know when we launch. No spam.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <span class="footer-copy">&copy; 2026 Keel AI</span>
+        <div class="footer-links">
+          <a href="#">GitHub</a>
+          <a href="#">Twitter</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // ── Intersection Observer for fade-in ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ── Form handling ──
+    function handleForm(form, successEl, errorEl) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn = form.querySelector('.btn-primary');
+        const originalText = btn.querySelector('span').textContent;
+        btn.querySelector('span').textContent = 'Sending...';
+        btn.disabled = true;
+
+        // Hide previous messages
+        successEl.classList.remove('show');
+        errorEl.classList.remove('show');
+
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'Accept': 'application/json' }
+          });
+
+          if (response.ok) {
+            successEl.classList.add('show');
+            form.reset();
+            btn.querySelector('span').textContent = 'You\'re in!';
+            setTimeout(() => {
+              btn.querySelector('span').textContent = originalText;
+              btn.disabled = false;
+            }, 3000);
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (err) {
+          errorEl.classList.add('show');
+          btn.querySelector('span').textContent = originalText;
+          btn.disabled = false;
+          setTimeout(() => errorEl.classList.remove('show'), 5000);
+        }
+      });
+    }
+
+    handleForm(
+      document.getElementById('hero-form'),
+      document.getElementById('hero-success'),
+      document.getElementById('hero-error')
+    );
+
+    handleForm(
+      document.getElementById('footer-form'),
+      document.getElementById('footer-success'),
+      document.getElementById('footer-error')
+    );
+
+    // ── Smooth scroll for anchor links ──
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

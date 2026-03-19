@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You Have 47 AI Tools. Your Team Uses 3. — Keel AI Blog</title>
+  <meta name="description" content="Your engineering team has access to 47 AI tools. They use 3. This isn't a tooling problem — it's a skills problem. Learn why composable AI skills beat disconnected tools.">
+  <meta name="author" content="Keel AI">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta property="og:title" content="You Have 47 AI Tools. Your Team Uses 3.">
+  <meta property="og:description" content="This isn't a tooling problem — it's a skills problem. Learn why composable AI skills beat disconnected tools.">
+  <meta property="og:type" content="article">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-elevated: #111118;
+      --bg-card: #16161f;
+      --purple: #7c3aed;
+      --purple-light: #a78bfa;
+      --cyan: #06b6d4;
+      --cyan-light: #22d3ee;
+      --green: #10b981;
+      --text: #f1f1f4;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(255, 255, 255, 0.12);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Dot grid background */
+    .dot-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .glow-top {
+      position: fixed;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120%;
+      height: 80%;
+      background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .glow-bottom {
+      position: fixed;
+      bottom: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 60%;
+      background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.05) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-brand img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav-brand span {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-cta {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--purple-light);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .nav-cta:hover {
+      background: rgba(124, 58, 237, 0.2);
+      border-color: rgba(124, 58, 237, 0.6);
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+
+    /* Article Header */
+    .article-header {
+      padding-top: 140px;
+      padding-bottom: 60px;
+      text-align: center;
+    }
+
+    .article-header .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .article-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.2s ease;
+    }
+
+    .article-back:hover {
+      color: var(--purple-light);
+    }
+
+    .article-back svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .article-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .article-meta-item svg {
+      width: 14px;
+      height: 14px;
+      color: var(--purple-light);
+      flex-shrink: 0;
+    }
+
+    .article-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: rgba(124, 58, 237, 0.1);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      color: var(--purple-light);
+      margin-bottom: 24px;
+    }
+
+    .article-title {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+    }
+
+    .article-title .highlight-number {
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .article-subtitle {
+      font-size: clamp(17px, 2vw, 20px);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Divider */
+    .header-divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      border-radius: 2px;
+      margin: 0 auto;
+    }
+
+    /* Article Body */
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .article-body p {
+      font-size: 17px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .article-body h2 {
+      font-size: clamp(24px, 3.5vw, 32px);
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 64px;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .article-body h2:first-child {
+      margin-top: 0;
+    }
+
+    .article-body strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .article-body hr {
+      border: none;
+      height: 1px;
+      background: var(--border);
+      margin: 56px 0;
+    }
+
+    .article-body blockquote {
+      border-left: 3px solid var(--purple);
+      padding: 16px 24px;
+      margin: 32px 0;
+      background: rgba(124, 58, 237, 0.05);
+      border-radius: 0 12px 12px 0;
+    }
+
+    .article-body blockquote p {
+      color: var(--purple-light);
+      font-size: 16px;
+      font-style: italic;
+      margin-bottom: 0;
+    }
+
+    /* Intro paragraph — slightly larger */
+    .article-intro {
+      font-size: 19px !important;
+      color: var(--text) !important;
+      font-weight: 400;
+      line-height: 1.75 !important;
+    }
+
+    /* Stat callout cards */
+    .stat-callout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .stat-callout-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-callout-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .stat-callout-number {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-callout-number.muted {
+      background: none;
+      -webkit-text-fill-color: var(--text-muted);
+      color: var(--text-muted);
+    }
+
+    .stat-callout-number.green {
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-callout-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* Inline stat highlight */
+    .inline-stat {
+      font-size: 1.15em;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Comparison boxes */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .comparison-box {
+      border-radius: 14px;
+      padding: 28px 24px;
+      border: 1px solid var(--border);
+    }
+
+    .comparison-box.without {
+      background: rgba(239, 68, 68, 0.04);
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .comparison-box.with {
+      background: rgba(16, 185, 129, 0.04);
+      border-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .comparison-box h4 {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+
+    .comparison-box.without h4 {
+      color: #f87171;
+    }
+
+    .comparison-box.with h4 {
+      color: var(--green);
+    }
+
+    .comparison-box p {
+      font-size: 15px !important;
+      line-height: 1.7 !important;
+      color: var(--text-secondary) !important;
+      margin-bottom: 0 !important;
+    }
+
+    /* Compounding timeline */
+    .compound-timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 32px 0;
+    }
+
+    .compound-step {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 14px;
+      text-align: center;
+      position: relative;
+    }
+
+    .compound-step::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--purple-light);
+      transform: translateY(-50%);
+    }
+
+    .compound-step:last-child::after {
+      display: none;
+    }
+
+    .compound-number {
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .compound-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Steps list */
+    .steps-list {
+      counter-reset: step-counter;
+      list-style: none;
+      margin: 32px 0;
+      padding: 0;
+    }
+
+    .steps-list li {
+      counter-increment: step-counter;
+      position: relative;
+      padding: 20px 20px 20px 60px;
+      margin-bottom: 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      transition: border-color 0.2s ease;
+    }
+
+    .steps-list li:hover {
+      border-color: var(--border-hover);
+    }
+
+    .steps-list li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(124, 58, 237, 0.15);
+      color: var(--purple-light);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .steps-list li strong {
+      color: var(--text);
+    }
+
+    /* Sources section */
+    .sources {
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .sources h2 {
+      font-size: 20px !important;
+      margin-top: 0 !important;
+      margin-bottom: 20px !important;
+      color: var(--text-muted) !important;
+    }
+
+    .sources-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sources-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .sources-list li:last-child {
+      border-bottom: none;
+    }
+
+    .sources-list a {
+      color: var(--purple-light);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .sources-list a:hover {
+      color: var(--cyan);
+      text-decoration: underline;
+    }
+
+    .sources-list .source-title {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* CTA Section */
+    .blog-cta {
+      border-top: 1px solid var(--border);
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .blog-cta .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .cta-divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      border-radius: 2px;
+      margin: 0 auto 32px;
+    }
+
+    .blog-cta h2 {
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    .blog-cta p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 32px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--purple), #6d28d9);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .cta-button:hover::before {
+      opacity: 1;
+    }
+
+    .cta-button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-button svg {
+      position: relative;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(124, 58, 237, 0.3);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+    }
+
+    footer .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .article-header { padding-top: 110px; padding-bottom: 40px; }
+      .stat-callout { grid-template-columns: 1fr; }
+      .comparison { grid-template-columns: 1fr; }
+      .compound-timeline { grid-template-columns: repeat(2, 1fr); }
+      .compound-step::after { display: none; }
+      .article-body h2 { margin-top: 48px; }
+      .blog-cta { padding: 60px 0; }
+      footer .container {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .article-body { padding: 0 16px 60px; }
+      .article-header .container { padding: 0 16px; }
+      .compound-timeline { grid-template-columns: repeat(2, 1fr); }
+      .steps-list li { padding-left: 52px; }
+    }
+
+    /* Focus states */
+    :focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
+      .fade-in { opacity: 1; transform: none; }
+    }
+
+    /* Selection */
+    ::selection {
+      background: rgba(124, 58, 237, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dot-grid" aria-hidden="true"></div>
+  <div class="glow-top" aria-hidden="true"></div>
+  <div class="glow-bottom" aria-hidden="true"></div>
+
+  <div class="content">
+
+    <!-- Nav -->
+    <nav aria-label="Main navigation">
+      <div class="container">
+        <a href="../" class="nav-brand" aria-label="Keel AI home">
+          <img src="../assets/keel-logo.png" alt="" width="32" height="32">
+          <span>KEEL AI</span>
+        </a>
+        <a href="../" class="nav-cta">Get Early Access</a>
+      </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="article-header">
+      <div class="container">
+        <a href="../" class="article-back fade-in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back to Keel AI
+        </a>
+        <div class="fade-in fade-in-delay-1">
+          <div class="article-badge">Engineering Intelligence</div>
+        </div>
+        <h1 class="article-title fade-in fade-in-delay-2">
+          You Have <span class="highlight-number">47</span> AI Tools.<br>Your Team Uses <span class="highlight-number">3</span>.
+        </h1>
+        <p class="article-subtitle fade-in fade-in-delay-3">
+          This isn't a tooling problem. It's a skills problem. Not developer skills &mdash; the tools are missing skills.
+        </p>
+        <div class="article-meta fade-in fade-in-delay-3">
+          <div class="article-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            March 19, 2026
+          </div>
+          <div class="article-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            12 min read
+          </div>
+        </div>
+        <div class="header-divider fade-in fade-in-delay-3"></div>
+      </div>
+    </header>
+
+    <!-- Article Body -->
+    <article class="article-body">
+
+      <div class="fade-in">
+        <p class="article-intro">Your engineering team has access to 47 AI tools.</p>
+
+        <p>Copilot for autocomplete. ChatGPT for architecture questions. CodeRabbit for reviews. Cursor for multi-file edits. That Slack bot someone installed in February. That code quality plugin from the vendor demo your VP attended and got excited about for exactly one afternoon.</p>
+
+        <p>Your team uses 3 of them. On a good week.</p>
+
+        <p>This isn't a tooling problem. It's a skills problem. Not developer skills &mdash; the tools are missing <em>skills</em>. Named, composable, persistent pieces of engineering intelligence that actually know your codebase, your patterns, and your standards. Without that layer, every new AI tool you buy is just another tombstone in the graveyard.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>The AI Tool Graveyard</h2>
+
+        <p>The Cortex 2026 Benchmark measured it: unstructured AI adoption in engineering teams plateaus at <span class="inline-stat">22%</span> within 30 days. Not 22% of the tool's capability. 22% of the team actually using it.</p>
+      </div>
+
+      <div class="stat-callout fade-in">
+        <div class="stat-callout-card">
+          <div class="stat-callout-number">49%</div>
+          <div class="stat-callout-label">of dev teams use 5+ AI tools</div>
+        </div>
+        <div class="stat-callout-card">
+          <div class="stat-callout-number">76%</div>
+          <div class="stat-callout-label">report negative outcomes from disconnected tools</div>
+        </div>
+        <div class="stat-callout-card">
+          <div class="stat-callout-number">54.3%</div>
+          <div class="stat-callout-label">cite "integration uncertainty" as #1 barrier</div>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <p>Over a quarter of enterprises use more than ten. And 76% report at least one negative outcome from having those tools disconnected from each other (Zapier AI sprawl survey). JetBrains called it "stealth friction." The AI4Agile 2026 report found that 54.3% of teams cite "integration uncertainty" as their number one barrier to AI adoption. Not cost. Not model quality. They don't know where the tool fits in their sprint.</p>
+
+        <p>That's the graveyard. Not bad tools. <strong>Homeless tools.</strong></p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>Three Reasons AI Tools Die</h2>
+
+        <p>AI tools don't fail because they're stupid. They fail for three structural reasons.</p>
+
+        <p><strong>No process integration.</strong> The tool is a side quest &mdash; something developers are supposed to remember to open after they've already started working. Nobody does that when the deadline is Thursday. We call it friction distance: zero steps (runs automatically) means near-universal adoption. Two or more steps and you're looking at that 22% plateau within a month.</p>
+
+        <p><strong>No memory.</strong> Every session starts from zero. Your AI review tool doesn't know your team banned callback patterns three months ago. It doesn't remember that the last four PRs had the same missing idempotency key. So it gives generic suggestions and developers learn to ignore it. Alert fatigue, same as in monitoring systems &mdash; once the noise gets loud enough, people stop reading.</p>
+
+        <blockquote>
+          <p>A tool that can't remember what it learned last session can't get better over time. And a tool that doesn't get better over time gets forgotten.</p>
+        </blockquote>
+
+        <p><strong>No enforcement.</strong> Using the tool is optional. Optional things get skipped when deadlines hit. One team had "mandatory" AI-assisted spec review. Month one: 80% compliance. Month three: two people. Compare that with another team that made AI review a blocking CI check. 100% from day one. No willpower required. That's the only adoption strategy that survives contact with a deadline.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>The Adoption Paradox</h2>
+
+        <p>Here's where it gets counterintuitive.</p>
+      </div>
+
+      <div class="stat-callout fade-in">
+        <div class="stat-callout-card">
+          <div class="stat-callout-number green">+98%</div>
+          <div class="stat-callout-label">more PRs with high AI adoption</div>
+        </div>
+        <div class="stat-callout-card">
+          <div class="stat-callout-number" style="background: linear-gradient(135deg, #f87171, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">+91%</div>
+          <div class="stat-callout-label">increase in review time</div>
+        </div>
+        <div class="stat-callout-card">
+          <div class="stat-callout-number muted">30pt</div>
+          <div class="stat-callout-label">perception gap: leaders vs. developers</div>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <p>Teams with high AI adoption produce <span class="inline-stat">98%</span> more pull requests (Faros AI). Almost double. But review time increased 91%. The bottleneck didn't move &mdash; it got worse. More code generated, same number of humans reviewing it.</p>
+
+        <p>75% of engineering leaders believe their AI rollout was successful. Only 45% of employees agree (LeadDev 2026). That's a <strong>30-point perception gap</strong>. Leadership measures licenses activated. Developers experience context switching, generic suggestions, and mandatory tools that don't fit how they work.</p>
+
+        <blockquote>
+          <p>The mine produces twice the ore, but the smelter can't keep up.</p>
+        </blockquote>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>The Answer Isn't Better Tools. It's Skills.</h2>
+
+        <p>The unit of AI-assisted engineering shouldn't be the tool. It should be the <strong>skill</strong>.</p>
+
+        <p>A skill is a named, composable, version-controlled piece of engineering intelligence. Not a vague "workflow" &mdash; a concrete thing with a name. A code review skill that knows your team's patterns. A spec-first planner that won't let you skip architecture. A TDD enforcer that doesn't care about your deadline.</p>
+
+        <p>Skills are different from tools in three ways that matter:</p>
+
+        <p><strong>Skills compound.</strong> A tool runs and produces output. A skill runs, produces output, remembers what it learned, and feeds that learning to other skills. Your review skill discovers a pattern. Your spec-first skill uses that pattern to prevent the issue from being written in the first place.</p>
+      </div>
+
+      <div class="compound-timeline fade-in">
+        <div class="compound-step">
+          <div class="compound-number">26</div>
+          <div class="compound-label">Day 1</div>
+        </div>
+        <div class="compound-step">
+          <div class="compound-number">47</div>
+          <div class="compound-label">Day 30</div>
+        </div>
+        <div class="compound-step">
+          <div class="compound-number">120</div>
+          <div class="compound-label">Day 90</div>
+        </div>
+        <div class="compound-step">
+          <div class="compound-number">247</div>
+          <div class="compound-label">Day 180</div>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-top: -8px; margin-bottom: 32px;">Team-specific review patterns over time</p>
+
+        <p><strong>Skills invoke each other.</strong> The review skill spots observability gaps and calls the observability audit skill automatically. The PR learning skill captures patterns and feeds them to the review skill for next time. Tools are strangers sharing a desk. Skills are a team.</p>
+
+        <p><strong>Skills are portable.</strong> Found a team with a solid database migration skill? Import it from their GitHub repo. Your security team published an auth verification skill? Pull it in. Version it. Customize it. Share improvements back. If you cancel a vendor tomorrow, you lose the tool &mdash; but the skills are yours, in your repo, version-controlled.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>What This Looks Like in Practice</h2>
+      </div>
+
+      <div class="comparison fade-in">
+        <div class="comparison-box without">
+          <h4>Without Skills</h4>
+          <p>Developer bounces between four tools. Each starts from zero. None share context. The developer is the integration layer &mdash; copying context between tools, translating outputs into inputs. Two hours of glue work per feature.</p>
+        </div>
+        <div class="comparison-box with">
+          <h4>With Composable Skills</h4>
+          <p>Same developer, same ticket. The spec-first skill already knows the architecture &mdash; persistent memory loaded. The review skill runs automatically with team-specific patterns. Three findings, all relevant, zero noise. PR created with full context.</p>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <p>That compounding over time is <strong>institutional memory</strong> &mdash; and institutional memory doesn't give two weeks' notice.</p>
+
+        <p>When a senior developer leaves, their patterns stay. When a new hire submits their first PR, the review skill teaches them two team standards, points to reference implementations, and explains the "why" &mdash; all automatically. Three days to productivity instead of three weeks.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>How to Start</h2>
+
+        <p>Don't try to build ten skills at once. That's how the last tool ended up in the graveyard.</p>
+      </div>
+
+      <ol class="steps-list fade-in">
+        <li><strong>Start with one skill: code review.</strong> Highest pain, clearest metrics, fastest feedback loop. Give it persistent memory from day one.</li>
+        <li><strong>Let it grow.</strong> When human reviewers catch something the skill missed, capture it. Feed it back. If the skill isn't learning new patterns every week in the first month, you're running a linter with a nicer UI.</li>
+        <li><strong>Measure outcomes, not activation.</strong> Review rounds to merge, PR lead time, escaped defects. Not "how many developers logged in." That's a vanity metric.</li>
+        <li><strong>Then add your second skill.</strong> Spec-first planning. Then pattern promotion across repos. One skill at a time, each feeding the others.</li>
+      </ol>
+
+      <div class="fade-in">
+        <blockquote>
+          <p>Honest caveat: the payoff curve is back-loaded. Month one through five can feel like more work for less return while the skills are learning. Month six is dramatically better. Not every team is ready for this. Small teams with low complexity might be fine with copilot-style tools. This is for teams that tried that and hit the wall.</p>
+        </blockquote>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>The Bottom Line</h2>
+
+        <p>The AI dev tools market is building better hammers. Faster autocomplete. Smarter suggestions. More context in the chat window.</p>
+
+        <p>Hammers are useful. No argument.</p>
+
+        <p>But what most teams actually need isn't a better hammer. It's a <strong>forge</strong> &mdash; a system where engineering intelligence is captured in named skills that persist, compound, and invoke each other.</p>
+      </div>
+
+      <div class="stat-callout fade-in">
+        <div class="stat-callout-card">
+          <div class="stat-callout-number muted">22%</div>
+          <div class="stat-callout-label">adoption plateau</div>
+        </div>
+        <div class="stat-callout-card">
+          <div class="stat-callout-number muted">30pt</div>
+          <div class="stat-callout-label">perception gap</div>
+        </div>
+        <div class="stat-callout-card">
+          <div class="stat-callout-number muted">+91%</div>
+          <div class="stat-callout-label">review time increase</div>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <p>These are the default outcomes when you treat AI adoption as a purchasing decision instead of a skill-building problem.</p>
+
+        <p><strong>Stop shopping for tools. Start forging skills.</strong></p>
+
+        <p>Keep on hammering.</p>
+      </div>
+
+      <!-- Sources -->
+      <div class="sources fade-in">
+        <h2>Sources</h2>
+        <ul class="sources-list">
+          <li>
+            <span class="source-title">Cortex 2026 Benchmark Report</span> &mdash; Engineering in the Age of AI
+            <br><a href="https://www.cortex.io/report/engineering-in-the-age-of-ai-2026-benchmark-report" target="_blank" rel="noopener">cortex.io</a>
+          </li>
+          <li>
+            <span class="source-title">AI4Agile Practitioners Report 2026</span>
+          </li>
+          <li>
+            <span class="source-title">Faros AI</span> &mdash; The AI Productivity Paradox
+            <br><a href="https://www.faros.ai/blog/ai-software-engineering" target="_blank" rel="noopener">faros.ai</a>
+          </li>
+          <li>
+            <span class="source-title">Zapier</span> &mdash; Tool Sprawl Limits AI Integration for 70% of Enterprises
+            <br><a href="https://zapier.com/blog/ai-sprawl-survey/" target="_blank" rel="noopener">zapier.com</a>
+          </li>
+          <li>
+            <span class="source-title">JetBrains</span> &mdash; AI Tool Switching Is Stealth Friction
+            <br><a href="https://blog.jetbrains.com/ai/2026/02/ai-tool-switching-is-stealth-friction-beat-it-at-the-access-layer/" target="_blank" rel="noopener">blog.jetbrains.com</a>
+          </li>
+          <li>
+            <span class="source-title">LeadDev</span> &mdash; AI Coding Mandates Are Driving Developers to the Brink
+            <br><a href="https://leaddev.com/culture/ai-coding-mandates-are-driving-developers-to-the-brink" target="_blank" rel="noopener">leaddev.com</a>
+          </li>
+        </ul>
+      </div>
+
+    </article>
+
+    <!-- CTA -->
+    <section class="blog-cta">
+      <div class="container">
+        <div class="cta-divider fade-in"></div>
+        <h2 class="fade-in">Want to stop the graveyard cycle?</h2>
+        <p class="fade-in fade-in-delay-1">Join the waitlist for Keel AI &mdash; the orchestration layer that turns disconnected AI tools into composable, persistent engineering skills.</p>
+        <div class="fade-in fade-in-delay-2">
+          <a href="../#waitlist" class="cta-button">
+            <span>Join the Waitlist</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <span class="footer-copy">&copy; 2026 Keel AI</span>
+        <div class="footer-links">
+          <a href="https://github.com/jAgusGelos" target="_blank" rel="noopener">GitHub</a>
+          <a href="../#waitlist">Get Early Access</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Intersection Observer for fade-in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

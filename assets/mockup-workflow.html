@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>Keel AI — Pre-commit Pipeline</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== BRAND ACCENT LINE ===== */
+  .brand-accent {
+    height: 2px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #7c3aed, #06b6d4, #10b981);
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: #0d0d16;
+    border-bottom: 1px solid #1a1a2e;
+  }
+  .header-left { display: flex; align-items: center; gap: 24px; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .logo {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    color: #555566;
+    cursor: pointer;
+  }
+  .nav-tab.active {
+    border-color: #7c3aed40;
+    color: #fff;
+    background: #7c3aed15;
+  }
+
+  .workspace-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    color: #9999aa;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    background: #0d0d16;
+    border-bottom: 1px solid #1a1a2e;
+  }
+
+  .wf-name-input {
+    background: transparent;
+    border: 1px solid #2a2a3e;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    width: 200px;
+  }
+
+  .toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: #2a2a3e;
+    flex-shrink: 0;
+  }
+
+  .toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid;
+    cursor: pointer;
+  }
+  .toolbar-btn.trigger { background: #22c55e10; border-color: #22c55e30; color: #22c55e; }
+  .toolbar-btn.condition { background: #f9731610; border-color: #f9731630; color: #f97316; }
+  .toolbar-btn.policy { background: #a855f710; border-color: #a855f730; color: #a855f7; }
+  .toolbar-btn.integration { background: #14b8a610; border-color: #14b8a630; color: #14b8a6; }
+
+  .toolbar-spacer { flex: 1; }
+
+  .toolbar-version {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #10b98115;
+    color: #10b981;
+    border: 1px solid #10b98130;
+  }
+
+  .toolbar-secondary {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    color: #9999aa;
+    cursor: pointer;
+  }
+
+  .toolbar-primary {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #7c3aed;
+    border: 1px solid #7c3aed;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .toolbar-save {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #10b981;
+    border: 1px solid #10b981;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  /* ===== WORKSPACE: CANVAS + SIDEBAR ===== */
+  .workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ===== CANVAS ===== */
+  .canvas {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 50%, #0f0f1a 0%, #0a0a0f 100%);
+  }
+
+  /* Dot grid pattern */
+  .canvas-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle, #1a1a2e 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.5;
+  }
+
+  /* Edge SVG layer */
+  .edges-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* ===== NODES ===== */
+  .node {
+    position: absolute;
+    min-width: 200px;
+    z-index: 10;
+  }
+  .node-inner {
+    border-radius: 12px;
+    border: 2px solid;
+    padding: 12px 16px;
+    transition: all 0.2s;
+  }
+  .node-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .node-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .node-category {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .node-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .node-desc {
+    font-size: 10px;
+    color: #9999aa;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+
+  /* Handle dots */
+  .handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #1a1a2e;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+  }
+  .handle-top { top: -5px; }
+  .handle-bottom { bottom: -5px; }
+
+  /* Selected node glow */
+  .node.selected .node-inner {
+    box-shadow: 0 0 24px var(--glow-color);
+  }
+
+  /* Trigger node special styling */
+  .trigger-events {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+  .trigger-event {
+    font-size: 9px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* ===== EDGE LABELS ===== */
+  .edge-label {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid;
+    z-index: 15;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: #0f0f1a;
+    border-left: 1px solid #1a1a2e;
+    overflow: hidden;
+  }
+
+  .sidebar-tabs {
+    display: flex;
+    border-bottom: 1px solid #1a1a2e;
+    flex-shrink: 0;
+  }
+  .sidebar-tab {
+    flex: 1;
+    padding: 10px 0;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    text-align: center;
+    color: #555566;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .sidebar-tab.active {
+    color: #fff;
+    border-bottom-color: #7c3aed;
+  }
+
+  .sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+  }
+
+  /* Search */
+  .sidebar-search {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .search-input {
+    flex: 1;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+    color: #fff;
+  }
+  .search-input::placeholder { color: #555566; }
+  .sidebar-icon-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    color: #9999aa;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Category accordion */
+  .cat-section { margin-bottom: 8px; }
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .cat-header:hover { background: #1a1a2e; }
+  .cat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .cat-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cat-count {
+    font-size: 10px;
+    color: #555566;
+    margin-left: auto;
+  }
+  .cat-chevron {
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+  .cat-chevron.open { transform: rotate(90deg); }
+
+  /* Skill items */
+  .skill-list {
+    margin-left: 8px;
+    margin-top: 4px;
+  }
+  .skill-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: grab;
+    border: 1px solid transparent;
+    transition: all 0.12s;
+  }
+  .skill-item:hover {
+    background: #1a1a2e;
+    border-color: #2a2a3e;
+  }
+  .skill-item.highlighted {
+    background: #1a1a2e;
+    border-color: #7c3aed;
+  }
+  .skill-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .skill-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .skill-desc {
+    font-size: 9px;
+    color: #555566;
+    line-height: 1.3;
+    margin-top: 1px;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Brand accent line -->
+<div class="brand-accent"></div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <span class="logo">Keel AI</span>
+    <div class="nav-tabs">
+      <span class="nav-tab">Dashboard</span>
+      <span class="nav-tab active">Workflows</span>
+      <span class="nav-tab">Analytics</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="workspace-badge">keel-labs</span>
+    <div class="avatar">AP</div>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="wf-name-input">Pre-commit Pipeline</div>
+  <div class="toolbar-divider"></div>
+
+  <!-- Special node buttons -->
+  <div class="toolbar-btn trigger">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Trigger
+  </div>
+  <div class="toolbar-btn condition">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+    Condition
+  </div>
+  <div class="toolbar-btn policy">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Policy
+  </div>
+  <div class="toolbar-btn integration">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+    Integration
+  </div>
+
+  <div class="toolbar-spacer"></div>
+
+  <span class="toolbar-version">Published v3</span>
+  <div class="toolbar-secondary">YAML</div>
+  <div class="toolbar-primary">Export .yml</div>
+  <div class="toolbar-save">Save</div>
+</div>
+
+<!-- Workspace: Canvas + Sidebar -->
+<div class="workspace">
+
+  <!-- Canvas -->
+  <div class="canvas">
+    <div class="canvas-grid"></div>
+
+    <!-- Edge SVG overlay -->
+    <svg class="edges-layer" viewBox="0 0 1120 760" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <!-- Arrow markers -->
+        <marker id="arrow-uses" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#7c3aed"/>
+        </marker>
+        <marker id="arrow-feeds" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#06b6d4"/>
+        </marker>
+      </defs>
+
+      <!-- Edge 1: Trigger -> Spec First (uses, purple) -->
+      <path d="M 560,108 C 560,140 560,148 560,168"
+            fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-uses)"/>
+
+      <!-- Edge 2: Spec First -> Three Experts (uses, purple) -->
+      <path d="M 560,258 C 560,290 560,298 560,318"
+            fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-uses)"/>
+
+      <!-- Edge 3: Three Experts -> Review Changes (uses, purple) -->
+      <path d="M 560,408 C 560,440 560,448 560,468"
+            fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-uses)"/>
+
+      <!-- Edge 4: Review Changes -> Create PR (feeds, cyan) -->
+      <path d="M 560,558 C 560,590 560,598 560,618"
+            fill="none" stroke="#06b6d4" stroke-width="2" marker-end="url(#arrow-feeds)"/>
+
+      <!-- Feedback edge: Review Changes -> Spec First (reads, amber dashed) -->
+      <path d="M 665,510 C 720,510 740,360 740,260 C 740,200 700,180 665,200"
+            fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6 4"
+            opacity="0.6"/>
+    </svg>
+
+    <!-- Node 1: Trigger (Developer MCP Call) — top center -->
+    <div class="node" style="left: 460px; top: 30px; --glow-color: #14b8a630;">
+      <div class="node-inner" style="background: #14b8a615; border-color: #14b8a640;">
+        <div class="node-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <path d="M15 3h6v6"/>
+            <path d="M10 14 21 3"/>
+          </svg>
+          <span class="node-category" style="color: #14b8a6;">Integration</span>
+        </div>
+        <div class="node-label">Developer MCP Call</div>
+        <div class="trigger-events">
+          <span class="trigger-event" style="background: #14b8a620; color: #14b8a6;">start_run</span>
+          <span class="trigger-event" style="background: #14b8a620; color: #14b8a6;">get_next_step</span>
+        </div>
+      </div>
+      <div class="handle handle-bottom" style="background: #14b8a6;"></div>
+    </div>
+
+    <!-- Node 2: Spec First — below trigger -->
+    <div class="node" style="left: 460px; top: 170px; --glow-color: #06b6d430;">
+      <div class="node-inner" style="background: #06b6d415; border-color: #06b6d440;">
+        <div class="node-header">
+          <div class="node-dot" style="background: #06b6d4;"></div>
+          <span class="node-category" style="color: #06b6d4;">Development</span>
+        </div>
+        <div class="node-label">Spec First</div>
+        <div class="node-desc">Plan before coding. Produces plan.md and todo.md...</div>
+      </div>
+      <div class="handle handle-top" style="background: #06b6d4;"></div>
+      <div class="handle handle-bottom" style="background: #06b6d4;"></div>
+    </div>
+
+    <!-- Node 3: Three Experts — center -->
+    <div class="node" style="left: 460px; top: 320px; --glow-color: #7c3aed30;">
+      <div class="node-inner" style="background: #7c3aed15; border-color: #7c3aed40;">
+        <div class="node-header">
+          <div class="node-dot" style="background: #7c3aed;"></div>
+          <span class="node-category" style="color: #7c3aed;">Reasoning</span>
+        </div>
+        <div class="node-label">Three Experts</div>
+        <div class="node-desc">Multi-expert deliberation. 3 experts converge on consensus.</div>
+      </div>
+      <div class="handle handle-top" style="background: #7c3aed;"></div>
+      <div class="handle handle-bottom" style="background: #7c3aed;"></div>
+    </div>
+
+    <!-- Node 4: Review Changes — SELECTED -->
+    <div class="node selected" style="left: 460px; top: 470px; --glow-color: #06b6d430;">
+      <div class="node-inner" style="background: #06b6d415; border-color: #06b6d4; box-shadow: 0 0 24px #06b6d430, 0 0 48px #06b6d415;">
+        <div class="node-header">
+          <div class="node-dot" style="background: #06b6d4;"></div>
+          <span class="node-category" style="color: #06b6d4;">Development</span>
+        </div>
+        <div class="node-label">Review Changes</div>
+        <div class="node-desc">Production code review + auto-fix. 57-point checklist.</div>
+      </div>
+      <div class="handle handle-top" style="background: #06b6d4;"></div>
+      <div class="handle handle-bottom" style="background: #06b6d4;"></div>
+    </div>
+
+    <!-- Node 5: Create PR — bottom -->
+    <div class="node" style="left: 460px; top: 620px; --glow-color: #6366f130;">
+      <div class="node-inner" style="background: #6366f115; border-color: #6366f140;">
+        <div class="node-header">
+          <div class="node-dot" style="background: #6366f1;"></div>
+          <span class="node-category" style="color: #6366f1;">DevOps</span>
+        </div>
+        <div class="node-label">Create PR</div>
+        <div class="node-desc">Creates portable PR from the current branch.</div>
+      </div>
+      <div class="handle handle-top" style="background: #6366f1;"></div>
+    </div>
+
+    <!-- Edge labels -->
+    <div class="edge-label" style="left: 540px; top: 138px; background: #7c3aed20; border-color: #7c3aed50; color: #7c3aed;">invokes</div>
+    <div class="edge-label" style="left: 540px; top: 288px; background: #7c3aed20; border-color: #7c3aed50; color: #7c3aed;">invokes</div>
+    <div class="edge-label" style="left: 540px; top: 438px; background: #7c3aed20; border-color: #7c3aed50; color: #7c3aed;">invokes</div>
+    <div class="edge-label" style="left: 540px; top: 588px; background: #06b6d420; border-color: #06b6d450; color: #06b6d4;">feeds</div>
+    <div class="edge-label" style="left: 748px; top: 360px; background: #f59e0b20; border-color: #f59e0b50; color: #f59e0b;">reads</div>
+
+  </div>
+
+  <!-- Right Sidebar -->
+  <div class="sidebar">
+    <!-- Tabs -->
+    <div class="sidebar-tabs">
+      <div class="sidebar-tab active">Skills</div>
+      <div class="sidebar-tab">Prompt</div>
+      <div class="sidebar-tab">Properties</div>
+      <div class="sidebar-tab">YAML</div>
+    </div>
+
+    <!-- Sidebar content -->
+    <div class="sidebar-content">
+      <!-- Search bar -->
+      <div class="sidebar-search">
+        <input class="search-input" type="text" placeholder="Search skills...">
+        <div class="sidebar-icon-btn" title="Import from GitHub">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <div class="sidebar-icon-btn" title="Create new skill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Category: Reasoning (collapsed) -->
+      <div class="cat-section">
+        <div class="cat-header">
+          <div class="cat-dot" style="background: #7c3aed;"></div>
+          <span class="cat-label" style="color: #7c3aed;">Reasoning</span>
+          <span class="cat-count">4</span>
+          <svg class="cat-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555566" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- Category: Development (EXPANDED) -->
+      <div class="cat-section">
+        <div class="cat-header" style="background: #06b6d408; border-radius: 8px;">
+          <div class="cat-dot" style="background: #06b6d4;"></div>
+          <span class="cat-label" style="color: #06b6d4;">Development</span>
+          <span class="cat-count">13</span>
+          <svg class="cat-chevron open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555566" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="skill-list">
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">CC-CC Dual Engine</div>
+              <div class="skill-desc">Dual iteration: Claude Code + Codex CLI...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">Spec First</div>
+              <div class="skill-desc">Plan before coding. Produces plan.md and...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">Spec First CC-CC</div>
+              <div class="skill-desc">Dual-engine specification workflow...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">Stress Test</div>
+              <div class="skill-desc">Adversarially stress-test a technical plan...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">TDD</div>
+              <div class="skill-desc">Strict Test-Driven Development: red-green-re...</div>
+            </div>
+          </div>
+          <div class="skill-item highlighted">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">Review Changes</div>
+              <div class="skill-desc">Production code review + auto-fix. 57-point...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">Style Guide</div>
+              <div class="skill-desc">Defines and maintains UI/UX Style Guide...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">Simplify</div>
+              <div class="skill-desc">Reviews changed code for reuse, quality...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">E2E Agent (Cypress)</div>
+              <div class="skill-desc">E2E agent with Cypress. Maps critical journeys...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">Frontend Perf Agent</div>
+              <div class="skill-desc">Deep frontend performance investigator...</div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-dot" style="background: #06b6d4;"></div>
+            <div>
+              <div class="skill-name">Backend Perf Agent</div>
+              <div class="skill-desc">Deep backend/DB performance investigator...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category: Persistence (collapsed) -->
+      <div class="cat-section">
+        <div class="cat-header">
+          <div class="cat-dot" style="background: #10b981;"></div>
+          <span class="cat-label" style="color: #10b981;">Persistence</span>
+          <span class="cat-count">3</span>
+          <svg class="cat-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555566" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- Category: Content (collapsed) -->
+      <div class="cat-section">
+        <div class="cat-header">
+          <div class="cat-dot" style="background: #f59e0b;"></div>
+          <span class="cat-label" style="color: #f59e0b;">Content</span>
+          <span class="cat-count">9</span>
+          <svg class="cat-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555566" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- Category: DevOps (collapsed) -->
+      <div class="cat-section">
+        <div class="cat-header">
+          <div class="cat-dot" style="background: #6366f1;"></div>
+          <span class="cat-label" style="color: #6366f1;">DevOps</span>
+          <span class="cat-count">11</span>
+          <svg class="cat-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555566" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- Category: Meta (collapsed) -->
+      <div class="cat-section">
+        <div class="cat-header">
+          <div class="cat-dot" style="background: #8b5cf6;"></div>
+          <span class="cat-label" style="color: #8b5cf6;">Meta</span>
+          <span class="cat-count">6</span>
+          <svg class="cat-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555566" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- Category: Analytics (collapsed) -->
+      <div class="cat-section">
+        <div class="cat-header">
+          <div class="cat-dot" style="background: #ec4899;"></div>
+          <span class="cat-label" style="color: #ec4899;">Analytics</span>
+          <span class="cat-count">1</span>
+          <svg class="cat-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555566" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>Keel AI — Dashboard Overview</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== BRAND ACCENT LINE ===== */
+  .brand-accent {
+    height: 2px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #7c3aed, #06b6d4, #10b981);
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: #0d0d16;
+    border-bottom: 1px solid #1a1a2e;
+  }
+  .header-left { display: flex; align-items: center; gap: 24px; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .logo {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    color: #555566;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-tab:hover { color: #9999aa; }
+  .nav-tab.active {
+    border-color: #7c3aed40;
+    color: #fff;
+    background: #7c3aed15;
+  }
+
+  .workspace-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    color: #9999aa;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+  }
+  .main-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ===== WELCOME SECTION ===== */
+  .welcome {
+    margin-bottom: 28px;
+  }
+  .welcome h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .welcome p {
+    font-size: 13px;
+    color: #555566;
+  }
+
+  /* ===== KPI CARDS ===== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: #0d0d16;
+    border: 1px solid #1a1a2e;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 12px 12px 0 0;
+  }
+  .kpi-card:nth-child(1)::before { background: #7c3aed; }
+  .kpi-card:nth-child(2)::before { background: #10b981; }
+  .kpi-card:nth-child(3)::before { background: #06b6d4; }
+  .kpi-card:nth-child(4)::before { background: #f59e0b; }
+
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #555566;
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .kpi-card:nth-child(1) .kpi-value { color: #7c3aed; }
+  .kpi-card:nth-child(2) .kpi-value { color: #10b981; }
+  .kpi-card:nth-child(3) .kpi-value { color: #06b6d4; }
+  .kpi-card:nth-child(4) .kpi-value { color: #f59e0b; }
+
+  .kpi-delta {
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .kpi-delta.positive { color: #10b981; }
+  .kpi-delta.negative { color: #ef4444; }
+  .kpi-delta.neutral { color: #555566; }
+
+  /* ===== TWO-COLUMN: WORKFLOWS + SKILL ECOSYSTEM ===== */
+  .content-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+  }
+
+  /* ===== RECENT WORKFLOWS ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .section-action {
+    font-size: 11px;
+    font-weight: 500;
+    color: #7c3aed;
+    cursor: pointer;
+  }
+
+  .workflow-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .workflow-card {
+    background: #0d0d16;
+    border: 1px solid #1a1a2e;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.15s;
+    cursor: pointer;
+  }
+  .workflow-card:hover {
+    border-color: #2a2a3e;
+  }
+
+  /* Mini node diagram */
+  .mini-diagram {
+    flex-shrink: 0;
+    width: 56px;
+    height: 48px;
+  }
+
+  .wf-info { flex: 1; min-width: 0; }
+  .wf-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .wf-desc {
+    font-size: 11px;
+    color: #555566;
+    margin-bottom: 6px;
+  }
+  .wf-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .wf-meta-item {
+    font-size: 10px;
+    color: #444455;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .wf-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .wf-badge.published {
+    background: #10b98115;
+    color: #10b981;
+    border: 1px solid #10b98130;
+  }
+  .wf-badge.draft {
+    background: #f59e0b15;
+    color: #f59e0b;
+    border: 1px solid #f59e0b30;
+  }
+
+  /* ===== SKILL ECOSYSTEM ===== */
+  .ecosystem {
+    background: #0d0d16;
+    border: 1px solid #1a1a2e;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .eco-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .eco-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .eco-count {
+    font-size: 11px;
+    color: #555566;
+  }
+
+  .eco-category {
+    margin-bottom: 14px;
+  }
+  .eco-cat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .eco-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .eco-cat-name {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .eco-cat-count {
+    font-size: 10px;
+    color: #444455;
+    margin-left: auto;
+  }
+  .eco-skills {
+    margin-left: 16px;
+    font-size: 10px;
+    color: #555566;
+    line-height: 1.6;
+  }
+  .eco-bar {
+    height: 3px;
+    border-radius: 2px;
+    margin-top: 4px;
+    margin-left: 16px;
+  }
+
+  /* ===== ACTIVITY SPARKLINE SECTION ===== */
+  .activity-section {
+    margin-top: 24px;
+  }
+  .activity-card {
+    background: #0d0d16;
+    border: 1px solid #1a1a2e;
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  .activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .activity-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .activity-range {
+    font-size: 11px;
+    color: #555566;
+  }
+</style>
+</head>
+<body>
+
+<!-- Brand accent line -->
+<div class="brand-accent"></div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <span class="logo">Keel AI</span>
+    <div class="nav-tabs">
+      <span class="nav-tab active">Dashboard</span>
+      <span class="nav-tab">Workflows</span>
+      <span class="nav-tab">Analytics</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="workspace-badge">keel-labs</span>
+    <div class="avatar">AP</div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="main">
+  <div class="main-inner">
+
+    <!-- Welcome -->
+    <div class="welcome">
+      <h1>Welcome back</h1>
+      <p>Your AI workflow orchestrator is running 8 active workflows across 42 skills</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Findings</div>
+        <div class="kpi-value">247</div>
+        <div class="kpi-delta positive">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          +18% this week
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Open Critical</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-delta positive">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          All resolved
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Cost Avoided</div>
+        <div class="kpi-value">$12.4k</div>
+        <div class="kpi-delta positive">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          +$2.1k vs last month
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Resolution</div>
+        <div class="kpi-value">4.2m</div>
+        <div class="kpi-delta positive">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>
+          -23% faster
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-column: Workflows + Ecosystem -->
+    <div class="content-row">
+
+      <!-- Recent Workflows -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">Recent Workflows</span>
+          <span class="section-action">View all &rarr;</span>
+        </div>
+        <div class="workflow-grid">
+
+          <!-- Workflow 1: Pre-commit Pipeline -->
+          <div class="workflow-card">
+            <svg class="mini-diagram" viewBox="0 0 56 48">
+              <!-- Mini node diagram: 5 connected dots -->
+              <circle cx="28" cy="4" r="3" fill="#22c55e"/>
+              <line x1="28" y1="7" x2="28" y2="13" stroke="#7c3aed40" stroke-width="1"/>
+              <circle cx="28" cy="16" r="3" fill="#06b6d4"/>
+              <line x1="28" y1="19" x2="28" y2="25" stroke="#7c3aed40" stroke-width="1"/>
+              <circle cx="28" cy="28" r="3" fill="#7c3aed"/>
+              <line x1="28" y1="31" x2="28" y2="37" stroke="#7c3aed40" stroke-width="1"/>
+              <circle cx="28" cy="40" r="3" fill="#06b6d4"/>
+              <line x1="28" y1="43" x2="20" y2="47" stroke="#7c3aed40" stroke-width="1"/>
+              <line x1="28" y1="43" x2="36" y2="47" stroke="#06b6d440" stroke-width="1"/>
+              <circle cx="20" cy="48" r="2.5" fill="#6366f1"/>
+              <circle cx="36" cy="48" r="2.5" fill="#06b6d4"/>
+            </svg>
+            <div class="wf-info">
+              <div class="wf-name">Pre-commit Pipeline</div>
+              <div class="wf-desc">Spec, review, and ship with confidence</div>
+              <div class="wf-meta">
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                  6 nodes
+                </span>
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Edited 2h ago
+                </span>
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  v3
+                </span>
+              </div>
+            </div>
+            <span class="wf-badge published">Published</span>
+          </div>
+
+          <!-- Workflow 2: Content Pipeline -->
+          <div class="workflow-card">
+            <svg class="mini-diagram" viewBox="0 0 56 48">
+              <circle cx="28" cy="4" r="3" fill="#f59e0b"/>
+              <line x1="28" y1="7" x2="28" y2="15" stroke="#f59e0b40" stroke-width="1"/>
+              <circle cx="28" cy="18" r="3" fill="#f59e0b"/>
+              <line x1="28" y1="21" x2="28" y2="29" stroke="#f59e0b40" stroke-width="1"/>
+              <circle cx="28" cy="32" r="3" fill="#f59e0b"/>
+              <line x1="28" y1="35" x2="18" y2="43" stroke="#f59e0b40" stroke-width="1"/>
+              <line x1="28" y1="35" x2="38" y2="43" stroke="#06b6d440" stroke-width="1"/>
+              <circle cx="18" cy="45" r="2.5" fill="#f59e0b"/>
+              <circle cx="38" cy="45" r="2.5" fill="#f59e0b"/>
+            </svg>
+            <div class="wf-info">
+              <div class="wf-name">Content Pipeline</div>
+              <div class="wf-desc">From ideation to social media posts</div>
+              <div class="wf-meta">
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                  5 nodes
+                </span>
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Edited 1d ago
+                </span>
+              </div>
+            </div>
+            <span class="wf-badge draft">Draft</span>
+          </div>
+
+          <!-- Workflow 3: Learning Loop -->
+          <div class="workflow-card">
+            <svg class="mini-diagram" viewBox="0 0 56 48">
+              <circle cx="28" cy="6" r="3" fill="#6366f1"/>
+              <line x1="28" y1="9" x2="28" y2="19" stroke="#06b6d440" stroke-width="1"/>
+              <circle cx="28" cy="22" r="3" fill="#10b981"/>
+              <line x1="28" y1="25" x2="28" y2="35" stroke="#06b6d440" stroke-width="1"/>
+              <circle cx="28" cy="38" r="3" fill="#06b6d4"/>
+              <!-- Feedback loop arrow hint -->
+              <path d="M35 38 Q 46 22 35 8" fill="none" stroke="#f59e0b30" stroke-width="1" stroke-dasharray="3 2"/>
+            </svg>
+            <div class="wf-info">
+              <div class="wf-name">Learning Loop</div>
+              <div class="wf-desc">Learn from PR feedback automatically</div>
+              <div class="wf-meta">
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                  3 nodes
+                </span>
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Edited 3d ago
+                </span>
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  v1
+                </span>
+              </div>
+            </div>
+            <span class="wf-badge published">Published</span>
+          </div>
+
+          <!-- Workflow 4: Standards Mining -->
+          <div class="workflow-card">
+            <svg class="mini-diagram" viewBox="0 0 56 48">
+              <circle cx="28" cy="6" r="3" fill="#8b5cf6"/>
+              <line x1="28" y1="9" x2="18" y2="21" stroke="#7c3aed40" stroke-width="1"/>
+              <line x1="28" y1="9" x2="38" y2="21" stroke="#7c3aed40" stroke-width="1"/>
+              <circle cx="18" cy="24" r="3" fill="#06b6d4"/>
+              <circle cx="38" cy="24" r="3" fill="#10b981"/>
+              <line x1="18" y1="27" x2="28" y2="39" stroke="#06b6d440" stroke-width="1"/>
+              <line x1="38" y1="27" x2="28" y2="39" stroke="#06b6d440" stroke-width="1"/>
+              <circle cx="28" cy="42" r="3" fill="#06b6d4"/>
+            </svg>
+            <div class="wf-info">
+              <div class="wf-name">Standards Mining</div>
+              <div class="wf-desc">Extract real engineering standards from merged PRs</div>
+              <div class="wf-meta">
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                  4 nodes
+                </span>
+                <span class="wf-meta-item">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#444455" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Edited 5d ago
+                </span>
+              </div>
+            </div>
+            <span class="wf-badge draft">Draft</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Skill Ecosystem -->
+      <div class="ecosystem">
+        <div class="eco-header">
+          <span class="eco-title">Skill Ecosystem</span>
+          <span class="eco-count">42 skills</span>
+        </div>
+
+        <!-- Reasoning -->
+        <div class="eco-category">
+          <div class="eco-cat-header">
+            <div class="eco-dot" style="background: #7c3aed"></div>
+            <span class="eco-cat-name" style="color: #7c3aed">Reasoning</span>
+            <span class="eco-cat-count">4</span>
+          </div>
+          <div class="eco-skills">Three Experts, Problem Solver, Prompt Refinement</div>
+          <div class="eco-bar" style="background: #7c3aed30; width: 38%"></div>
+        </div>
+
+        <!-- Development -->
+        <div class="eco-category">
+          <div class="eco-cat-header">
+            <div class="eco-dot" style="background: #06b6d4"></div>
+            <span class="eco-cat-name" style="color: #06b6d4">Development</span>
+            <span class="eco-cat-count">13</span>
+          </div>
+          <div class="eco-skills">Review Changes, Spec First, CC-CC Dual Engine, TDD</div>
+          <div class="eco-bar" style="background: #06b6d430; width: 100%"></div>
+        </div>
+
+        <!-- Persistence -->
+        <div class="eco-category">
+          <div class="eco-cat-header">
+            <div class="eco-dot" style="background: #10b981"></div>
+            <span class="eco-cat-name" style="color: #10b981">Persistence</span>
+            <span class="eco-cat-count">3</span>
+          </div>
+          <div class="eco-skills">Memory Bank, PR Learning</div>
+          <div class="eco-bar" style="background: #10b98130; width: 23%"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="eco-category">
+          <div class="eco-cat-header">
+            <div class="eco-dot" style="background: #f59e0b"></div>
+            <span class="eco-cat-name" style="color: #f59e0b">Content</span>
+            <span class="eco-cat-count">9</span>
+          </div>
+          <div class="eco-skills">Creative Content Agent, Humanizer, Social Media Plan</div>
+          <div class="eco-bar" style="background: #f59e0b30; width: 69%"></div>
+        </div>
+
+        <!-- DevOps -->
+        <div class="eco-category">
+          <div class="eco-cat-header">
+            <div class="eco-dot" style="background: #6366f1"></div>
+            <span class="eco-cat-name" style="color: #6366f1">DevOps</span>
+            <span class="eco-cat-count">11</span>
+          </div>
+          <div class="eco-skills">Create PR, Fix PR Comments, Deploy Summary</div>
+          <div class="eco-bar" style="background: #6366f130; width: 85%"></div>
+        </div>
+
+        <!-- Meta -->
+        <div class="eco-category">
+          <div class="eco-cat-header">
+            <div class="eco-dot" style="background: #8b5cf6"></div>
+            <span class="eco-cat-name" style="color: #8b5cf6">Meta</span>
+            <span class="eco-cat-count">6</span>
+          </div>
+          <div class="eco-skills">Start Day, Skill Creator, Repo Standards Mining</div>
+          <div class="eco-bar" style="background: #8b5cf630; width: 46%"></div>
+        </div>
+
+        <!-- Analytics -->
+        <div class="eco-category">
+          <div class="eco-cat-header">
+            <div class="eco-dot" style="background: #ec4899"></div>
+            <span class="eco-cat-name" style="color: #ec4899">Analytics</span>
+            <span class="eco-cat-count">1</span>
+          </div>
+          <div class="eco-skills">Keel Metrics</div>
+          <div class="eco-bar" style="background: #ec489930; width: 8%"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Activity Sparkline -->
+    <div class="activity-section">
+      <div class="activity-card">
+        <div class="activity-header">
+          <span class="activity-title">Findings Trend</span>
+          <span class="activity-range">Last 14 days</span>
+        </div>
+        <svg width="100%" height="80" viewBox="0 0 1120 80" preserveAspectRatio="none">
+          <!-- Grid lines -->
+          <line x1="0" y1="20" x2="1120" y2="20" stroke="#1a1a2e" stroke-width="1"/>
+          <line x1="0" y1="40" x2="1120" y2="40" stroke="#1a1a2e" stroke-width="1"/>
+          <line x1="0" y1="60" x2="1120" y2="60" stroke="#1a1a2e" stroke-width="1"/>
+          <!-- Gradient fill under curve -->
+          <defs>
+            <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,55 L80,48 L160,52 L240,35 L320,40 L400,28 L480,32 L560,18 L640,22 L720,15 L800,20 L880,12 L960,8 L1040,14 L1120,10 L1120,80 L0,80 Z" fill="url(#sparkGrad)"/>
+          <path d="M0,55 L80,48 L160,52 L240,35 L320,40 L400,28 L480,32 L560,18 L640,22 L720,15 L800,20 L880,12 L960,8 L1040,14 L1120,10" fill="none" stroke="#7c3aed" stroke-width="2"/>
+          <!-- Data points -->
+          <circle cx="0" cy="55" r="3" fill="#7c3aed"/>
+          <circle cx="240" cy="35" r="3" fill="#7c3aed"/>
+          <circle cx="560" cy="18" r="3" fill="#7c3aed"/>
+          <circle cx="960" cy="8" r="3" fill="#7c3aed"/>
+          <circle cx="1120" cy="10" r="3" fill="#7c3aed"/>
+        </svg>
+        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+          <span style="font-size: 10px; color: #444455;">Mar 5</span>
+          <span style="font-size: 10px; color: #444455;">Mar 12</span>
+          <span style="font-size: 10px; color: #444455;">Mar 19</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stop Prompting, Start Orchestrating: The Layer Most AI-Native Developers Are Missing — Keel AI Blog</title>
+  <meta name="description" content="You already use Claude Code or Codex. But one-off prompts don't compound. The missing layer is composable skills, governed workflows, and team-wide sharing.">
+  <meta name="author" content="Keel AI">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta property="og:title" content="Stop Prompting, Start Orchestrating: The Layer Most AI-Native Developers Are Missing">
+  <meta property="og:description" content="One-off prompts don't compound. The missing layer is composable skills, governed workflows, and team-wide sharing.">
+  <meta property="og:type" content="article">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-elevated: #111118;
+      --bg-card: #16161f;
+      --purple: #7c3aed;
+      --purple-light: #a78bfa;
+      --cyan: #06b6d4;
+      --cyan-light: #22d3ee;
+      --green: #10b981;
+      --text: #f1f1f4;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(255, 255, 255, 0.12);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Dot grid background */
+    .dot-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .glow-top {
+      position: fixed;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120%;
+      height: 80%;
+      background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .glow-bottom {
+      position: fixed;
+      bottom: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 60%;
+      background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.05) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-brand img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav-brand span {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-cta {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--purple-light);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .nav-cta:hover {
+      background: rgba(124, 58, 237, 0.2);
+      border-color: rgba(124, 58, 237, 0.6);
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+
+    /* Article Header */
+    .article-header {
+      padding-top: 140px;
+      padding-bottom: 60px;
+      text-align: center;
+    }
+
+    .article-header .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .article-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.2s ease;
+    }
+
+    .article-back:hover {
+      color: var(--purple-light);
+    }
+
+    .article-back svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .article-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .article-meta-item svg {
+      width: 14px;
+      height: 14px;
+      color: var(--purple-light);
+      flex-shrink: 0;
+    }
+
+    .article-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: rgba(124, 58, 237, 0.1);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      color: var(--purple-light);
+      margin-bottom: 24px;
+    }
+
+    .article-title {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+    }
+
+    .article-title .highlight {
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .article-subtitle {
+      font-size: clamp(17px, 2vw, 20px);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Divider */
+    .header-divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      border-radius: 2px;
+      margin: 0 auto;
+    }
+
+    /* Article Body */
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .article-body p {
+      font-size: 17px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .article-body h2 {
+      font-size: clamp(24px, 3.5vw, 32px);
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 64px;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .article-body h2:first-child {
+      margin-top: 0;
+    }
+
+    .article-body strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .article-body hr {
+      border: none;
+      height: 1px;
+      background: var(--border);
+      margin: 56px 0;
+    }
+
+    .article-body blockquote {
+      border-left: 3px solid var(--purple);
+      padding: 16px 24px;
+      margin: 32px 0;
+      background: rgba(124, 58, 237, 0.05);
+      border-radius: 0 12px 12px 0;
+    }
+
+    .article-body blockquote p {
+      color: var(--purple-light);
+      font-size: 16px;
+      font-style: italic;
+      margin-bottom: 0;
+    }
+
+    /* Intro paragraph */
+    .article-intro {
+      font-size: 19px !important;
+      color: var(--text) !important;
+      font-weight: 400;
+      line-height: 1.75 !important;
+    }
+
+    /* Inline link */
+    .article-body a {
+      color: var(--purple-light);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(167, 139, 250, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .article-body a:hover {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+    }
+
+    /* Stat callout cards */
+    .stat-callout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .stat-callout-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-callout-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .stat-callout-number {
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-callout-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* Comparison boxes */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .comparison-box {
+      border-radius: 14px;
+      padding: 28px 24px;
+      border: 1px solid var(--border);
+    }
+
+    .comparison-box.without {
+      background: rgba(239, 68, 68, 0.04);
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .comparison-box.with {
+      background: rgba(16, 185, 129, 0.04);
+      border-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .comparison-box h4 {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+
+    .comparison-box.without h4 {
+      color: #f87171;
+    }
+
+    .comparison-box.with h4 {
+      color: var(--green);
+    }
+
+    .comparison-box p {
+      font-size: 15px !important;
+      line-height: 1.7 !important;
+      color: var(--text-secondary) !important;
+      margin-bottom: 0 !important;
+    }
+
+    /* Steps list */
+    .steps-list {
+      counter-reset: step-counter;
+      list-style: none;
+      margin: 32px 0;
+      padding: 0;
+    }
+
+    .steps-list li {
+      counter-increment: step-counter;
+      position: relative;
+      padding: 20px 20px 20px 60px;
+      margin-bottom: 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      transition: border-color 0.2s ease;
+    }
+
+    .steps-list li:hover {
+      border-color: var(--border-hover);
+    }
+
+    .steps-list li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(124, 58, 237, 0.15);
+      color: var(--purple-light);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .steps-list li strong {
+      color: var(--text);
+    }
+
+    /* Stack diagram */
+    .stack-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 40px 0;
+    }
+
+    .stack-layer {
+      padding: 24px 28px;
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .stack-layer:first-child {
+      border-radius: 14px 14px 0 0;
+    }
+
+    .stack-layer:last-child {
+      border-radius: 0 0 14px 14px;
+    }
+
+    .stack-layer:not(:last-child) {
+      border-bottom: none;
+    }
+
+    .stack-layer:hover {
+      border-color: var(--border-hover);
+      z-index: 1;
+    }
+
+    .stack-layer-number {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+    }
+
+    .stack-layer-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .stack-layer-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .stack-layer.layer-3 {
+      background: rgba(124, 58, 237, 0.08);
+    }
+    .stack-layer.layer-3 .stack-layer-number {
+      color: var(--purple-light);
+    }
+
+    .stack-layer.layer-2 {
+      background: rgba(6, 182, 212, 0.06);
+    }
+    .stack-layer.layer-2 .stack-layer-number {
+      color: var(--cyan);
+    }
+
+    .stack-layer.layer-1 {
+      background: rgba(16, 185, 129, 0.06);
+    }
+    .stack-layer.layer-1 .stack-layer-number {
+      color: var(--green);
+    }
+
+    .stack-layer.layer-0 {
+      background: var(--bg-elevated);
+    }
+    .stack-layer.layer-0 .stack-layer-number {
+      color: var(--text-muted);
+    }
+    .stack-layer.layer-0 .stack-layer-title {
+      color: var(--text-muted);
+    }
+
+    /* Sources section */
+    .sources {
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .sources h2 {
+      font-size: 20px !important;
+      margin-top: 0 !important;
+      margin-bottom: 20px !important;
+      color: var(--text-muted) !important;
+    }
+
+    .sources-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sources-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .sources-list li:last-child {
+      border-bottom: none;
+    }
+
+    .sources-list a {
+      color: var(--purple-light);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .sources-list a:hover {
+      color: var(--cyan);
+      text-decoration: underline;
+    }
+
+    .sources-list .source-title {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* CTA Section */
+    .blog-cta {
+      border-top: 1px solid var(--border);
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .blog-cta .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .cta-divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      border-radius: 2px;
+      margin: 0 auto 32px;
+    }
+
+    .blog-cta h2 {
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    .blog-cta p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 32px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--purple), #6d28d9);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .cta-button:hover::before {
+      opacity: 1;
+    }
+
+    .cta-button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-button svg {
+      position: relative;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(124, 58, 237, 0.3);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+    }
+
+    footer .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .article-header { padding-top: 110px; padding-bottom: 40px; }
+      .stat-callout { grid-template-columns: 1fr; }
+      .comparison { grid-template-columns: 1fr; }
+      .article-body h2 { margin-top: 48px; }
+      .blog-cta { padding: 60px 0; }
+      footer .container {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .article-body { padding: 0 16px 60px; }
+      .article-header .container { padding: 0 16px; }
+      .steps-list li { padding-left: 52px; }
+    }
+
+    /* Focus states */
+    :focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
+      .fade-in { opacity: 1; transform: none; }
+    }
+
+    /* Selection */
+    ::selection {
+      background: rgba(124, 58, 237, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dot-grid" aria-hidden="true"></div>
+  <div class="glow-top" aria-hidden="true"></div>
+  <div class="glow-bottom" aria-hidden="true"></div>
+
+  <div class="content">
+
+    <!-- Nav -->
+    <nav aria-label="Main navigation">
+      <div class="container">
+        <a href="../" class="nav-brand" aria-label="Keel AI home">
+          <img src="../assets/keel-logo.png" alt="" width="32" height="32">
+          <span>KEEL AI</span>
+        </a>
+        <a href="../" class="nav-cta">Get Early Access</a>
+      </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="article-header">
+      <div class="container">
+        <a href="../" class="article-back fade-in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back to Keel AI
+        </a>
+        <div class="fade-in fade-in-delay-1">
+          <div class="article-badge">Agentic Development</div>
+        </div>
+        <h1 class="article-title fade-in fade-in-delay-2">
+          Stop Prompting,<br>Start <span class="highlight">Orchestrating</span>.
+        </h1>
+        <p class="article-subtitle fade-in fade-in-delay-3">
+          The layer most AI-native developers are missing &mdash; and why one-off prompts will never compound.
+        </p>
+        <div class="article-meta fade-in fade-in-delay-3">
+          <div class="article-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            March 23, 2026
+          </div>
+          <div class="article-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            10 min read
+          </div>
+        </div>
+        <div class="header-divider fade-in fade-in-delay-3"></div>
+      </div>
+    </header>
+
+    <!-- Article Body -->
+    <article class="article-body">
+
+      <div class="fade-in">
+        <p class="article-intro">You've been running Claude Code for months. Or Codex. Or both. You prompt from the terminal, you give good context, and you left ChatGPT-for-coding behind a while ago.</p>
+
+        <p>So here's what happened to me last month. I was refining a workflow for weeks &mdash; spec-first planning, structured code review, the whole thing. Solid output. Then I looked at what the rest of my team was doing with the exact same tools. Same model. Same terminal. Wildly different results.</p>
+
+        <p>Some of the output was, frankly, garbage. Including some of mine.</p>
+
+        <p>That's an orchestration problem. And it's the gap in most agentic development workflows right now.</p>
+
+        <p><strong>If you just want faster autocomplete, stop here.</strong> Cursor and Copilot are great at that. This is for developers who already run CLI agents and can't figure out why their team's output is still all over the place &mdash; and what to build above the prompt layer to fix it.</p>
+      </div>
+
+      <blockquote class="fade-in">
+        <p>One-off prompts don't compound. Your team uses the same AI tools but gets inconsistent results. The fix is what we call The Orchestration Stack &mdash; three layers above prompting: composable skills, governed workflows, and team-wide sharing via your repo.</p>
+      </blockquote>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>The plateau you can't see</h2>
+
+        <p>I'm not going to explain what agentic coding is. You know.</p>
+
+        <p>You're faster at individual tasks. But look at the team level. PRs vary in quality depending on who prompted the model. Review cycles are still long. Every new dev starts from zero with their own prompting style.</p>
+
+        <p>You optimized the individual. You didn't touch the system.</p>
+
+        <p><strong>Prompts don't compound.</strong> Your best prompt dies when the conversation ends. Your teammate's version produces different results. There's no shared process, no way for the team to converge on what "good" looks like.</p>
+
+        <p>Four developers on our team, all using Claude Code, all confident. Output quality varied so much we spent more time catching inconsistencies in review than we saved with AI generation.</p>
+
+        <p>Here's the difference in a line: a prompt is something you type once. A skill is something you build once and reuse forever. A workflow chains skills into a governed process. That progression &mdash; prompt &rarr; skill &rarr; workflow &mdash; is what we call <strong>The Orchestration Stack</strong>.</p>
+      </div>
+
+      <div class="stack-diagram fade-in">
+        <div class="stack-layer layer-3">
+          <div class="stack-layer-number">Layer 3</div>
+          <div class="stack-layer-title">Developer Workflow Sharing</div>
+          <div class="stack-layer-desc">Pull the repo, get the process. New devs inherit workflows on git pull.</div>
+        </div>
+        <div class="stack-layer layer-2">
+          <div class="stack-layer-number">Layer 2</div>
+          <div class="stack-layer-title">Governed Workflows</div>
+          <div class="stack-layer-desc">Chain skills into enforced sequences. One command, no re-prompting between steps.</div>
+        </div>
+        <div class="stack-layer layer-1">
+          <div class="stack-layer-number">Layer 1</div>
+          <div class="stack-layer-title">Composable Skills</div>
+          <div class="stack-layer-desc">Named, reusable SKILL.md files. Build once, invoke forever. Skills call skills.</div>
+        </div>
+        <div class="stack-layer layer-0">
+          <div class="stack-layer-number">Layer 0</div>
+          <div class="stack-layer-title">Prompts</div>
+          <div class="stack-layer-desc">One-off instructions. Die when the conversation ends.</div>
+        </div>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>Layer 1: Composable skills</h2>
+
+        <p>Stop writing the same prompt twice.</p>
+
+        <p>A skill is a SKILL.md file &mdash; structured instructions, metadata, optional scripts. Write it once, the agent loads it automatically. Composition is what makes this work: composable AI skills invoke other skills.</p>
+
+        <p>Our <code>spec-first</code> skill produces implementation plans by invoking a <code>three-experts</code> skill &mdash; three domain specialists debating the architecture before a single line of code gets written. Our <code>review-changes</code> skill runs a 40-point code review checklist. When it finds observability issues above a threshold, it escalates to an <code>observability-audit</code> skill. Skills calling skills.</p>
+
+        <p>I learned this the hard way. I built one massive workflow &mdash; planning, implementation, review, deployment, all in one skill. Monolith approach. The context got too wide, instructions too diluted. It was producing goblin work: sloppy, fragile, unmaintainable.</p>
+
+        <p>The fix was decomposition. Small skills. Clear boundaries. Same principle we apply to code &mdash; single responsibility, composability. Works for AI workflows too.</p>
+
+        <p><a href="https://keel-ai.dev">Keel</a> ships with 40+ skills built this way. <code>spec-first</code> calls <code>three-experts</code>. <code>review-changes</code> dispatches three parallel review agents. <code>creative-content-agent</code> calls <code>humanizer</code> for final polish. You can use them as-is, fork them, or build your own. The composition engine is the point &mdash; not any individual skill.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>Layer 2: Governed workflows</h2>
+
+        <p>A workflow chains skills: one skill's output feeds the next. The sequence is enforced &mdash; you don't re-prompt between steps.</p>
+
+        <p>Feature development in practice:</p>
+      </div>
+
+      <ol class="steps-list fade-in">
+        <li><strong>Prompt refinement</strong> &mdash; clarifies the request</li>
+        <li><strong>Spec-first planning</strong> &mdash; implementation plan with architecture deliberation</li>
+        <li><strong>Implementation</strong> &mdash; follows the spec, milestone by milestone</li>
+        <li><strong>Code review</strong> &mdash; 40-point automated checklist after each milestone</li>
+        <li><strong>PR creation</strong> &mdash; auto-generates the PR with contextual summary</li>
+      </ol>
+
+      <div class="fade-in">
+        <p>One command. The system handles the sequence. In Keel, these workflows live in a visual canvas &mdash; you wire skills together, version them, and publish them for your team. When something breaks, you trace it to the specific skill that failed, not a wall of prompt text.</p>
+
+        <p>My unpopular opinion: <strong>we're not splitting work into small enough pieces.</strong> Most developers run one agent on one task. But you can dispatch subagents &mdash; parallel skills handling different concerns simultaneously. Keel's <code>review-changes</code> skill dispatches three parallel subagents (code quality, security/performance, external validation) and merges their findings into a unified report. The <code>cc-cc-powerful-iterations</code> skill cross-validates output between Claude and Codex. The work gets distributed, not serialized.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>Layer 3: Developer workflow sharing</h2>
+
+        <p>Look, this is the part that gets me going.</p>
+
+        <p>Skills live as files in your repo. <code>.claude/skills/</code> directory. Pull the repo, get the workflows. No setup guide, no "ask Sarah how she prompts the code review."</p>
+
+        <p>New dev joins Monday. By Tuesday they're running the same spec-first planning, the same 40-point review, the same governed workflow as everyone else. They pulled the repo and the process was there.</p>
+      </div>
+
+      <div class="stat-callout fade-in">
+        <div class="stat-callout-card">
+          <div class="stat-callout-number">git pull</div>
+          <div class="stat-callout-label">Onboarding collapses &mdash; new devs inherit workflows instantly</div>
+        </div>
+        <div class="stat-callout-card">
+          <div class="stat-callout-number">1 PR</div>
+          <div class="stat-callout-label">Quality converges &mdash; update a skill, the whole team gets the fix</div>
+        </div>
+        <div class="stat-callout-card">
+          <div class="stat-callout-number">Day 1</div>
+          <div class="stat-callout-label">Memory bank gives full project context on first session</div>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <p><strong>The process evolves like code</strong> &mdash; someone finds a gap in the review checklist? Update the skill, open a PR. The whole team gets the fix. Keel even has a <code>/repo-standards-mining</code> skill that reverse-engineers your team's actual review patterns from PR history and proposes checklist updates automatically.</p>
+
+        <p>Individual prompts improve one developer. Shared skills improve the team. Your best developer's workflow doesn't die when they switch teams. A shared skill survives.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>The speed trap</h2>
+
+        <p>We spent three months shipping features at what felt like incredible speed. Prompting fast, generating fast, merging fast.</p>
+
+        <p>Then came four months of bug hunting. Edge cases the fast prompts missed. Features that weren't spec'd properly. Inconsistencies between developers' implementations.</p>
+      </div>
+
+      <div class="comparison fade-in">
+        <div class="comparison-box without">
+          <h4>3 months of speed</h4>
+          <p>Prompting fast, generating fast, merging fast. No specs. No governed review. Felt incredible.</p>
+        </div>
+        <div class="comparison-box with">
+          <h4>4 months of cleanup</h4>
+          <p>Edge cases missed. Features under-spec'd. Inconsistencies everywhere. Do the math.</p>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <p>The governed workflows feel like overhead in week one. But by month two, they're faster &mdash; because you're not paying the bug tax later. Small friction now. No four-month cleanup sprint later.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>What's still hard</h2>
+
+        <p><strong>Metrics</strong> &mdash; biggest open question. We track escaped defects, rework ratio, review cycle time. Keel's <code>/keel-metrics</code> skill automates collection and produces before/after dashboards, but making it rigorous enough for a quarterly review is still harder than it should be.</p>
+
+        <p><strong>Memory curation</strong> &mdash; persistent memory in AI coding sounds great until it goes stale. Someone has to own it, prune it, update it. Like documentation: valuable when maintained, dangerous when neglected.</p>
+
+        <p><strong>Granularity</strong> &mdash; too many tiny skills and you're managing a warehouse. Too coarse and you get the monolith problem &mdash; remember the goblin work from earlier. We decompose at roughly 200 lines or when a skill handles more than one concern. Still judgment, not formula.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <h2>Where to start</h2>
+
+        <p>Start with the workflow that hurts the most. If that's inconsistent reviews, run <code>/review-changes</code> on your next PR. If it's specs that drift from implementation, try <code>/spec-first</code> on your next ticket. If your AI keeps forgetting your architecture, run <code>/memory-bank init</code>.</p>
+
+        <p>Add a second skill that connects to the first &mdash; now you have a workflow. Share it via <code>.claude/skills/</code> in your repo. Improve through PRs, same as code.</p>
+
+        <p>Then let memory compound. Your AI on day 30 knows things it didn't on day 1. By month two, the entire team is running at a quality floor that used to depend on your best engineer being in the room.</p>
+
+        <p>You already chose the right tools. <a href="https://keel-ai.dev">Keel</a> is the layer above them.</p>
+      </div>
+
+      <hr class="fade-in">
+
+      <div class="fade-in">
+        <p><a href="https://keel-ai.dev">Keel</a> is where we built all of this. 40+ composable skills. Persistent memory banks. A visual workflow builder where you wire skills together and publish versioned workflows your whole team inherits. Dual-engine validation. Version control with RBAC and proposals so your AI workflows get the same governance your code does.</p>
+
+        <p>Sign up for early access at <a href="https://keel-ai.dev">keel-ai.dev</a>. If any of this resonated, you'll want to see it in action.</p>
+      </div>
+
+      <!-- Sources -->
+      <div class="sources fade-in">
+        <h2>References</h2>
+        <ul class="sources-list">
+          <li>
+            <span class="source-title">Anthropic</span> &mdash; 2026 Agentic Coding Trends
+            <br><a href="https://resources.anthropic.com/2026-agentic-coding-trends-report" target="_blank" rel="noopener">resources.anthropic.com</a>
+          </li>
+          <li>
+            <span class="source-title">Anthropic</span> &mdash; Best Practices for Agentic Coding
+            <br><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener">anthropic.com</a>
+          </li>
+        </ul>
+      </div>
+
+    </article>
+
+    <!-- CTA -->
+    <section class="blog-cta">
+      <div class="container">
+        <div class="cta-divider fade-in"></div>
+        <h2 class="fade-in">Ready to build the layer above prompting?</h2>
+        <p class="fade-in fade-in-delay-1">Join the waitlist for Keel AI &mdash; composable skills, governed workflows, and persistent memory for your entire team.</p>
+        <div class="fade-in fade-in-delay-2">
+          <a href="../#waitlist" class="cta-button">
+            <span>Join the Waitlist</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <span class="footer-copy">&copy; 2026 Keel AI</span>
+        <div class="footer-links">
+          <a href="https://github.com/jAgusGelos" target="_blank" rel="noopener">GitHub</a>
+          <a href="../#waitlist">Get Early Access</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Intersection Observer for fade-in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

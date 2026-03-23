@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Keel AI</title>
+  <meta name="description" content="Engineering intelligence, agentic development workflows, and composable AI skills. The Keel AI blog.">
+  <meta name="author" content="Keel AI">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta property="og:title" content="Blog — Keel AI">
+  <meta property="og:description" content="Engineering intelligence, agentic development workflows, and composable AI skills.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-elevated: #111118;
+      --bg-card: #16161f;
+      --purple: #7c3aed;
+      --purple-light: #a78bfa;
+      --cyan: #06b6d4;
+      --cyan-light: #22d3ee;
+      --green: #10b981;
+      --text: #f1f1f4;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(255, 255, 255, 0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .dot-grid {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .glow-top {
+      position: fixed; top: -40%; left: 50%; transform: translateX(-50%);
+      width: 120%; height: 80%;
+      background: radial-gradient(ellipse at center, rgba(124,58,237,0.08) 0%, transparent 70%);
+      z-index: 0; pointer-events: none;
+    }
+
+    .glow-bottom {
+      position: fixed; bottom: -20%; left: 50%; transform: translateX(-50%);
+      width: 100%; height: 60%;
+      background: radial-gradient(ellipse at center, rgba(6,182,212,0.05) 0%, transparent 70%);
+      z-index: 0; pointer-events: none;
+    }
+
+    .content { position: relative; z-index: 1; }
+
+    /* ── Navigation ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 0;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      background: rgba(10,10,15,0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .container {
+      max-width: 1120px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+    }
+
+    .nav-brand img { width: 32px; height: 32px; }
+
+    .nav-brand span {
+      font-size: 16px; font-weight: 700; letter-spacing: 0.5px;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+
+    .nav-link {
+      font-size: 14px; font-weight: 500; color: var(--text-secondary);
+      text-decoration: none; transition: color 0.2s ease;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-link.active { color: var(--purple-light); }
+
+    .nav-cta {
+      font-size: 13px; font-weight: 500; padding: 8px 20px; border-radius: 8px;
+      border: 1px solid rgba(124,58,237,0.4); background: rgba(124,58,237,0.1);
+      color: var(--purple-light); cursor: pointer; text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .nav-cta:hover { background: rgba(124,58,237,0.2); border-color: rgba(124,58,237,0.6); }
+
+    /* ── Fade-in ── */
+    .fade-in {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+
+    /* ── Page Header ── */
+    .page-header {
+      padding-top: 140px; padding-bottom: 64px; text-align: center;
+    }
+
+    .page-header .container {
+      max-width: 800px; margin: 0 auto; padding: 0 24px;
+    }
+
+    .page-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px; border-radius: 100px;
+      font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+      background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
+      color: var(--purple-light); margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: clamp(36px, 5vw, 56px); font-weight: 800;
+      line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px;
+    }
+
+    .page-title .highlight {
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .page-subtitle {
+      font-size: clamp(17px, 2vw, 20px); color: var(--text-secondary);
+      line-height: 1.7; max-width: 560px; margin: 0 auto;
+    }
+
+    .header-divider {
+      width: 48px; height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      border-radius: 2px; margin: 40px auto 0;
+    }
+
+    /* ── Post Grid ── */
+    .posts-section {
+      max-width: 960px; margin: 0 auto; padding: 0 24px 100px;
+    }
+
+    .posts-grid {
+      display: grid; grid-template-columns: 1fr; gap: 24px;
+    }
+
+    /* ── Post Card ── */
+    .post-card {
+      display: grid; grid-template-columns: 1fr;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; text-decoration: none; color: inherit;
+      transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+      position: relative;
+    }
+
+    .post-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: 16px;
+      background: linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(6,182,212,0.04) 100%);
+      opacity: 0; transition: opacity 0.35s ease; pointer-events: none;
+    }
+
+    .post-card:hover {
+      border-color: rgba(124,58,237,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(124,58,237,0.1), 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .post-card:hover::before { opacity: 1; }
+
+    .post-card-body { padding: 36px 40px; position: relative; z-index: 1; }
+
+    .post-card-meta {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+
+    .post-card-badge {
+      display: inline-flex; padding: 3px 10px; border-radius: 100px;
+      font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+      background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2);
+      color: var(--purple-light);
+    }
+
+    .post-card-date {
+      font-size: 13px; color: var(--text-muted); font-weight: 500;
+    }
+
+    .post-card-read {
+      font-size: 13px; color: var(--text-muted); font-weight: 500;
+    }
+
+    .post-card-title {
+      font-size: clamp(22px, 3vw, 28px); font-weight: 700;
+      line-height: 1.25; letter-spacing: -0.5px; margin-bottom: 14px;
+      color: var(--text);
+      transition: color 0.2s ease;
+    }
+
+    .post-card:hover .post-card-title { color: var(--purple-light); }
+
+    .post-card-excerpt {
+      font-size: 16px; line-height: 1.7; color: var(--text-secondary);
+      margin-bottom: 24px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .post-card-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 600; color: var(--purple-light);
+      transition: gap 0.2s ease;
+    }
+
+    .post-card:hover .post-card-cta { gap: 10px; }
+
+    .post-card-cta svg { width: 16px; height: 16px; }
+
+    /* ── Featured (first) card ── */
+    .post-card.featured {
+      background: linear-gradient(135deg, rgba(124,58,237,0.04) 0%, var(--bg-elevated) 50%);
+      border-color: rgba(124,58,237,0.15);
+    }
+
+    .post-card.featured .post-card-body { padding: 44px 48px; }
+
+    .post-card.featured .post-card-title {
+      font-size: clamp(26px, 3.5vw, 34px);
+    }
+
+    .post-card.featured .post-card-badge {
+      background: rgba(124,58,237,0.18);
+      border-color: rgba(124,58,237,0.35);
+    }
+
+    /* ── Newsletter CTA ── */
+    .blog-cta {
+      border-top: 1px solid var(--border); padding: 80px 0; text-align: center;
+    }
+
+    .blog-cta .container {
+      max-width: 600px; margin: 0 auto; padding: 0 24px;
+    }
+
+    .cta-divider {
+      width: 48px; height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      border-radius: 2px; margin: 0 auto 32px;
+    }
+
+    .blog-cta h2 {
+      font-size: clamp(24px, 3.5vw, 36px); font-weight: 700;
+      line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.5px;
+    }
+
+    .blog-cta p {
+      font-size: 17px; color: var(--text-secondary); line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .cta-button {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 16px 32px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, var(--purple), #6d28d9);
+      color: white; font-size: 16px; font-weight: 600; font-family: inherit;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.2s ease; position: relative; overflow: hidden;
+    }
+
+    .cta-button::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+
+    .cta-button:hover::before { opacity: 1; }
+    .cta-button span { position: relative; z-index: 1; }
+    .cta-button svg { position: relative; z-index: 1; width: 18px; height: 18px; }
+
+    .cta-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(124,58,237,0.3);
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border); padding: 40px 0;
+    }
+
+    footer .container {
+      max-width: 1120px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .footer-copy { font-size: 13px; color: var(--text-muted); }
+
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a {
+      font-size: 13px; color: var(--text-muted); text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .footer-links a:hover { color: var(--text-secondary); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .page-header { padding-top: 110px; padding-bottom: 48px; }
+      .post-card-body { padding: 28px 24px; }
+      .post-card.featured .post-card-body { padding: 32px 28px; }
+      .blog-cta { padding: 60px 0; }
+      .nav-links { gap: 20px; }
+      footer .container {
+        flex-direction: column; gap: 16px; text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .posts-section { padding: 0 16px 80px; }
+      .page-header .container { padding: 0 16px; }
+      .post-card-meta { gap: 10px; }
+    }
+
+    :focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
+      .fade-in { opacity: 1; transform: none; }
+    }
+
+    ::selection { background: rgba(124,58,237,0.3); }
+  </style>
+</head>
+<body>
+
+  <div class="dot-grid" aria-hidden="true"></div>
+  <div class="glow-top" aria-hidden="true"></div>
+  <div class="glow-bottom" aria-hidden="true"></div>
+
+  <div class="content">
+
+    <!-- Nav -->
+    <nav aria-label="Main navigation">
+      <div class="container">
+        <a href="../" class="nav-brand" aria-label="Keel AI home">
+          <img src="../assets/keel-logo.png" alt="" width="32" height="32">
+          <span>KEEL AI</span>
+        </a>
+        <div class="nav-links">
+          <a href="./" class="nav-link active">Blog</a>
+          <a href="../" class="nav-cta">Get Early Access</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="container">
+        <div class="fade-in">
+          <div class="page-badge">Keel AI Blog</div>
+        </div>
+        <h1 class="page-title fade-in fade-in-delay-1">
+          Engineering <span class="highlight">Intelligence</span>
+        </h1>
+        <p class="page-subtitle fade-in fade-in-delay-2">
+          Agentic workflows, composable skills, and the systems that make AI-native teams actually work.
+        </p>
+        <div class="header-divider fade-in fade-in-delay-3"></div>
+      </div>
+    </header>
+
+    <!-- Posts -->
+    <section class="posts-section">
+      <div class="posts-grid">
+
+        <!-- POST:START agentic-dev-missing-layer -->
+        <a href="agentic-dev-missing-layer.html" class="post-card featured fade-in">
+          <div class="post-card-body">
+            <div class="post-card-meta">
+              <span class="post-card-badge">Agentic Development</span>
+              <span class="post-card-date">March 23, 2026</span>
+              <span class="post-card-read">10 min read</span>
+            </div>
+            <h2 class="post-card-title">Stop Prompting, Start Orchestrating: The Layer Most AI-Native Developers Are Missing</h2>
+            <p class="post-card-excerpt">You already use Claude Code or Codex. But one-off prompts don't compound. The missing layer is composable skills, governed workflows, and team-wide sharing.</p>
+            <div class="post-card-cta">
+              Read article
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+          </div>
+        </a>
+        <!-- POST:END agentic-dev-missing-layer -->
+
+        <!-- POST:START you-have-47-ai-tools -->
+        <a href="you-have-47-ai-tools.html" class="post-card fade-in">
+          <div class="post-card-body">
+            <div class="post-card-meta">
+              <span class="post-card-badge">Engineering Intelligence</span>
+              <span class="post-card-date">March 19, 2026</span>
+              <span class="post-card-read">12 min read</span>
+            </div>
+            <h2 class="post-card-title">You Have 47 AI Tools. Your Team Uses 3.</h2>
+            <p class="post-card-excerpt">Your engineering team has access to 47 AI tools. They use 3. This isn't a tooling problem — it's a skills problem. Learn why composable AI skills beat disconnected tools.</p>
+            <div class="post-card-cta">
+              Read article
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+          </div>
+        </a>
+        <!-- POST:END you-have-47-ai-tools -->
+
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="blog-cta">
+      <div class="container">
+        <div class="cta-divider fade-in"></div>
+        <h2 class="fade-in">Want more like this?</h2>
+        <p class="fade-in fade-in-delay-1">Join the waitlist for Keel AI and get early access to composable skills, governed workflows, and persistent memory for your team.</p>
+        <div class="fade-in fade-in-delay-2">
+          <a href="../#waitlist" class="cta-button">
+            <span>Join the Waitlist</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <span class="footer-copy">&copy; 2026 Keel AI</span>
+        <div class="footer-links">
+          <a href="https://github.com/jAgusGelos" target="_blank" rel="noopener">GitHub</a>
+          <a href="../#waitlist">Get Early Access</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
